@@ -6,12 +6,29 @@ import { getAllContacts, getContactsById } from './services/contacts.js';
 
 // import {initDBConnection } from "./db.js";
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(pinoHttp({ logger }));
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+// app.use(pinoHttp({ logger }));
 
 const PORT = process.env.PORT || 3000;
+export const setupServer = () => {
+  const app = express();
+
+  app.use(express.json());
+
+  app.use(
+    pino({
+      transport: {
+        target: 'pino-pretty',
+      },
+    }),
+  );
+}
+
+  app.use(cors());
+
+
 
 app.get('/contacts', async (req, res) => {
   try {
@@ -52,11 +69,11 @@ app.use((req, res) => {
 });
 
 
-const setupServer = () => {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-};
+// export const setupServer = () => {
+//     app.listen(PORT, () => {
+//         console.log(`Server is running on port ${PORT}`);
+//     });
+// };
 
 // async function bootstrap() {
 //  try {
