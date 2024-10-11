@@ -4,6 +4,7 @@ import pino from 'pino-http';
 import cors from 'cors';
 import { getAllContacts, getContactById } from './services/contacts.js';
 
+
 export const setupServer = () => {
     const app = express();
     app.use(cors());
@@ -18,10 +19,10 @@ export const setupServer = () => {
     }),
   );
 
-    // Отримання всіх контактів
+
     app.get('/contacts', async (req, res) => {
         try {
-            const contacts = await getAllContacts(); // Виклик сервісу
+            const contacts = await getAllContacts();
             res.status(200).json({
                 status: 200,
                 message: "Successfully found contacts!",
@@ -33,11 +34,11 @@ export const setupServer = () => {
   }
     });
 
-    // Отримання контакту за ID
+
     app.get('/contacts/:contactId', async (req, res) => {
         const { contactId } = req.params;
         try {
-            const contact = await getContactById(contactId); // Виклик сервісу
+            const contact = await getContactById(contactId); //
             if (!contact) {
                 return res.status(404).json({ message: 'Contact not found' });
             }
@@ -52,7 +53,7 @@ export const setupServer = () => {
   }
     });
 
-    // Інші маршрути...
+
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
