@@ -1,5 +1,5 @@
 function parseNumber(value, defaultValue) {
-  if (typeof value !== 'string') {
+  if (typeof value !== "string") {
     return defaultValue;
   }
 
@@ -23,4 +23,3 @@ export function parsePaginationParams(query) {
     perPage: parsedPerPage,
   };
 }
-

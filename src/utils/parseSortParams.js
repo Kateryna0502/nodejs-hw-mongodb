@@ -1,33 +1,33 @@
 function parseSortOrder(value) {
-  if (typeof value !== 'string') {
-    return 'asc';
+  if (typeof value !== "string") {
+    return "asc";
   }
 
-  if (['asc', 'desc'].includes(value) !== true) {
-    return 'asc';
+  if (["asc", "desc"].includes(value) !== true) {
+    return "asc";
   }
 
   return value;
 }
 
 function parseSortBy(value) {
-  if (typeof value !== 'string') {
-    return '_id';
+  if (typeof value !== "string") {
+    return "_id";
   }
 
   const keys = [
-    '_id',
-    'name',
-    'phoneNumber',
-    'email',
-    'isFavourite',
-    'contactType',
-    'createdAt',
-    'updatedAt',
+    "_id",
+    "name",
+    "phoneNumber",
+    "email",
+    "isFavourite",
+    "contactType",
+    "createdAt",
+    "updatedAt",
   ];
 
   if (keys.includes(value) !== true) {
-    return '_id';
+    return "_id";
   }
 
   return value;
@@ -42,4 +42,3 @@ export const parseSortParams = (query) => {
     sortBy: parsedSortBy,
   };
 };
-
