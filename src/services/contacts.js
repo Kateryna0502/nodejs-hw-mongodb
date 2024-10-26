@@ -30,13 +30,13 @@ export const getAllContacts = async ({
 
 
 
-  const totalPages = Math.ceil(count / perPage);
+  const totalPages = Math.ceil(contactsCount / perPage);
   const hasNextPage = page < totalPages;
   const hasPreviousPage = page > 1;
   return {
     page,
     perPage,
-    totalItems: count,
+    totalItems: contactsCount,
     totalPages,
     hasNextPage,
     hasPreviousPage,
