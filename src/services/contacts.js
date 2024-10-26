@@ -1,10 +1,10 @@
-import Contact from '../models/contact.js';
+import Contact from "../models/contact.js";
 
 export const getAllContacts = async ({
   page,
   perPage,
-  sortOrder,
-  sortBy = '_id',
+  sortOrder = 1,
+  sortBy = "_id",
   filter = {},
 }) => {
   const limit = perPage;
@@ -12,11 +12,11 @@ export const getAllContacts = async ({
 
   const contactsQuery = Contact.find();
 
-  if (filter.type !== null) {
-    contactsQuery.where('contactType').equals(filter.type);
+  if (filter.type != null) {
+    contactsQuery.where("contactType").equals(filter.type);
   }
-  if (filter.isFavourite !== null) {
-    contactsQuery.where('isFavourite').equals(filter.isFavourite);
+  if (filter.isFavourite != null) {
+    contactsQuery.where("isFavourite").equals(filter.isFavourite);
   }
 
   const [contactsCount, contacts] = await Promise.all([
@@ -28,19 +28,22 @@ export const getAllContacts = async ({
       .exec(),
   ]);
 
+  const definePaginationData = (count, page, perPage) => {
+    const totalPages = Math.ceil(count / perPage);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+    return {
+      page,
+      perPage,
+      totalItems: count,
+      totalPages,
+      hasPreviousPage,
+      hasNextPage,
+    };
+  };
 
-
-  const totalPages = Math.ceil(contactsCount / perPage);
-  const hasNextPage = page < totalPages;
-  const hasPreviousPage = page > 1;
-  return {
-    page,
-    perPage,
-    totalItems: contactsCount,
-    totalPages,
-    hasNextPage,
-    hasPreviousPage,
-  }
+  const paginationData = definePaginationData(contactsCount, page, perPage);
+  return { data: contacts, ...paginationData };
 };
 
 export const getContactById = async (id) => {
@@ -61,7 +64,7 @@ export const updateContact = async (contactId, payload, options = {}) => {
       _id: contactId,
     },
     payload,
-    { new: true, includeResultMetadata: true, ...options },
+    { new: true, includeResultMetadata: true, ...options }
   );
   if (!rawResult || !rawResult.value) return null;
   return {

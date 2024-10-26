@@ -1,4 +1,4 @@
-import httpError from 'http-errors';
+import httpError from "http-errors";
 
 import {
   createContact,
@@ -6,60 +6,67 @@ import {
   getAllContacts,
   getContactById,
   updateContact,
-} from '../services/contacts.js';
+} from "../services/contacts.js";
 
-import { parsePaginationParams } from '../utils/parsePaginationParams.js';
-import { parseSortParams } from '../utils/parseSortParams.js';
-import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { parsePaginationParams } from "../utils/parsePaginationParams.js";
+import { parseSortParams } from "../utils/parseSortParams.js";
+import { parseFilterParams } from "../utils/parseFilterParams.js";
 
+export async function getContactsController(req, res) {
+  try {
+    const { page = 1, perPage = 10 } = parsePaginationParams(req.query);
+    const { sortBy, sortOrder } = parseSortParams(req.query);
+    const filter = parseFilterParams(req.query);
 
-export async function getContactsController (req, res) {
-const { page, perPage } = parsePaginationParams(req.query);
-  const { sortBy, sortOrder } = parseSortParams(req.query);
-  const filter = parseFilterParams(req.query);
+    const data = await getAllContacts({
+      page,
+      perPage,
+      sortBy,
+      sortOrder,
+      filter,
+    });
 
-  const data = await getAllContacts({
-    page,
-    perPage,
-    sortBy,
-    sortOrder,
-    filter,
-  });
-            
-            res.status(200).json({
-                status: 200,
-                message: "Successfully found contacts!",
-                data: contacts,
-            });
-};
+    res.status(200).json({
+      status: 200,
+      message: "Successfully found contacts!",
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      message: "Failed to fetch contacts",
+      error: error.message,
+    });
+  }
+}
 
 export const getContactController = async (req, res, next) => {
-    const { contactId } = req.params;
-    const contact = await getContactById(contactId);
-    if (!contact) {
-        throw httpError(404, 'Contact not found');
-    }
-      res.status(200).json({
-      status: 200,
-      message: `Successfully found contact with id ${contactId}!`,
-      data: contact,
-    });
+  const { contactId } = req.params;
+  const contact = await getContactById(contactId);
+  if (!contact) {
+    throw httpError(404, "Contact not found");
+  }
+  res.status(200).json({
+    status: 200,
+    message: `Successfully found contact with id ${contactId}!`,
+    data: contact,
+  });
 };
-    export const createContactController = async (req, res) => {
+export const createContactController = async (req, res) => {
   const contact = await createContact(req.body);
 
   res.status(201).json({
     status: 201,
-    message: 'Successfully created a contact!',
+    message: "Successfully created a contact!",
     data: contact,
   });
-    };
+};
 
-    export const deleteContactController = async (req, res, next) => {
+export const deleteContactController = async (req, res, next) => {
   const { contactId } = req.params;
   const contact = await deleteContact(contactId);
   if (!contact) {
-    throw httpError(404, 'Contact not found');
+    throw httpError(404, "Contact not found");
   }
   res.status(204).send();
 };
@@ -68,7 +75,7 @@ export const upsertContactController = async (req, res, next) => {
   const { contactId } = req.params;
   const result = await updateContact(contactId, req.body, { upsert: true });
   if (!result) {
-    throw httpError(404, 'Student not found');
+    throw httpError(404, "Student not found");
   }
   const status = result.isNew ? 201 : 200;
   res.status(status).json({
@@ -81,7 +88,7 @@ export const updateContactController = async (req, res, next) => {
   const { contactId } = req.params;
   const result = await updateContact(contactId, req.body);
   if (!result) {
-    throw httpError(404, 'Contact not found');
+    throw httpError(404, "Contact not found");
   }
   res.json({
     status: 200,
@@ -89,4 +96,3 @@ export const updateContactController = async (req, res, next) => {
     data: result.contact,
   });
 };
-
