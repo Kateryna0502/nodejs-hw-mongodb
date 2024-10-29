@@ -14,7 +14,7 @@ export async function registerController(req, res) {
 
   const registeredUser = await registerUser(payload);
 
-  res.send({ status: 200, message: 'User registered', data: registeredUser });
+  res.send({ status: 201, message: 'Successfully registered a user!', data: registeredUser });
 }
 
 export async function loginController(req, res) {
@@ -34,7 +34,7 @@ export async function loginController(req, res) {
 
   res.send({
     status: 200,
-    message: 'Login completed',
+    message: 'Successfully logged in an user!',
     data: {
       accessToken: session.accessToken,
     },
@@ -71,7 +71,7 @@ export async function refreshController(req, res) {
 
   res.send({
     status: 200,
-    message: 'Session refreshed',
+    message: 'Successfully refreshed a session!',
     data: {
       accessToken: session.accessToken,
     },

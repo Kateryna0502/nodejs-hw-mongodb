@@ -10,7 +10,7 @@ export async function registerUser(payload) {
   const user = await User.findOne({ email: payload.email });
 
   if (user !== null) {
-    throw createHttpError(409, 'Email already in use');
+    throw createHttpError(409, 'Email in use');
   }
 
   payload.password = await bcrypt.hash(payload.password, 10);
@@ -22,9 +22,8 @@ export async function loginUser(email, password) {
   const user = await User.findOne({ email });
 
   if (user === null) {
-    // throw createHttpError(404, "User not found");
-    throw createHttpError(401, 'Email or password is incorrect');
-  }
+    throw createHttpError(404, "User not found");
+      }
 
   const isMatch = await bcrypt.compare(password, user.password);
 
@@ -73,6 +72,6 @@ export async function refreshSession(sessionId, refreshToken) {
     accessToken: crypto.randomBytes(30).toString('base64'),
     refreshToken: crypto.randomBytes(30).toString('base64'),
     accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
-    refreshTokenValidUntil: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   });
 }
