@@ -12,6 +12,12 @@ const contactSchema = new mongoose.Schema(
     },
     email: {
       type: String,
+      validate: {
+        validator: function (v) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        },
+        message: props => `${props.value} is not a valid email address!`
+      }
     },
     isFavourite: {
       type: Boolean,
@@ -20,17 +26,20 @@ const contactSchema = new mongoose.Schema(
     contactType: {
       type: String,
       enum: ["work", "home", "personal"],
-      required: true,
       default: "personal",
     },
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'users',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', 
       required: true,
     },
   },
   { timestamps: true, versionKey: false }
 );
+
+// Індекси для покращення продуктивності запитів
+contactSchema.index({ userId: 1 });
+contactSchema.index({ name: 1 }); // Додано індекс на ім'я для прискорення пошуку, якщо це потрібно
 
 const Contact = mongoose.model("Contact", contactSchema);
 
