@@ -65,49 +65,38 @@ export async function loginController(req, res) {
 }
 
 export async function logoutController(req, res) {
-  try {
-    const { sessionId } = req.cookies;
-    if (!sessionId) {
-      return res.status(400).send({ message: "Session ID not found" });
-    }
+  const { sessionId } = req.cookies;
+
+  if (typeof sessionId === 'string') {
     await logoutUser(sessionId);
-    res.clearCookie("refreshToken");
-    res.clearCookie("sessionId");
-    res.status(204).end();
-  } catch (error) {
-    res.status(500).send({ message: "Logout failed", error: error.message });
   }
+
+  res.clearCookie('refreshToken');
+  res.clearCookie('sessionId');
+
+  res.status(204).end();
 }
 
 export async function refreshController(req, res) {
-  try {
-    const { sessionId, refreshToken } = req.cookies;
-    if (!sessionId || !refreshToken) {
-      return res
-        .status(400)
-        .send({ message: "Session ID and refresh token are required" });
-    }
-    const session = await refreshSession(sessionId, refreshToken);
-    if (!session) {
-      return res.status(401).send({ message: "Session refresh failed" });
-    }
-    res.cookie("refreshToken", session.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      expires: session.refreshTokenValidUntil,
-    });
-    res.cookie("sessionId", session._id, {
-      httpOnly: true,
-      secure: true,
-      expires: session.refreshTokenValidUntil,
-    });
-    res
-      .status(200)
-      .send({
-        message: "Successfully refreshed a session!",
-        data: { accessToken: session.accessToken },
-      });
-  } catch (error) {
-    res.status(500).send({ message: "Refresh error", error: error.message });
-  }
+  const { sessionId, refreshToken } = req.cookies;
+
+  const session = await refreshSession(sessionId, refreshToken);
+
+  res.cookie('refreshToken', session.refreshToken, {
+    httpOnly: true,
+    expires: session.refreshTokenValidUntil,
+  });
+
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expires: session.refreshTokenValidUntil,
+  });
+
+  res.send({
+    status: 200,
+    message: 'Session refreshed',
+    data: {
+      accessToken: session.accessToken,
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from 'cookie-parser';
 import { env } from "./utils/env.js";
 import "dotenv/config";
 import pino from "pino-http";
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 export const setupServer = () => {
   const app = express();
+
   app.use(cors());
   app.use(
   express.json({
@@ -37,6 +39,7 @@ export const setupServer = () => {
   });
 
   // app.use('/contacts', contactsRouter);
+  app.use(cookieParser());
   app.use(router);
   app.use('*', notFoundHandler);
   app.use(errorHandler);
