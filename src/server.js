@@ -3,7 +3,7 @@ import { env } from "./utils/env.js";
 import "dotenv/config";
 import pino from "pino-http";
 import cors from "cors";
-import contactsRouter from "./routers/contacts.js";
+// import contactsRouter from "./routers/contacts.js";
 import router from './routers/index.js';
 
 
@@ -36,10 +36,11 @@ export const setupServer = () => {
     });
   });
 
-  app.use('/contacts', contactsRouter);
+  // app.use('/contacts', contactsRouter);
+  app.use(router);
   app.use('*', notFoundHandler);
   app.use(errorHandler);
-  app.use(router);
+
 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
