@@ -12,7 +12,6 @@ import { auth } from '../middlewares/auth.js';
 
 const authRoutes = express.Router();
 
-
 authRoutes.use(express.json());
 
 authRoutes.post(
