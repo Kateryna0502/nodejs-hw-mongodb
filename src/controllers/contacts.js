@@ -13,7 +13,9 @@ import { parseSortParams } from "../utils/parseSortParams.js";
 import { parseFilterParams } from "../utils/parseFilterParams.js";
 
 export async function getContactsController(req, res, next) {
+const userId = req.user._id;
   try {
+
     const { page = 1, perPage = 10 } = parsePaginationParams(req.query);
     const { sortBy, sortOrder } = parseSortParams(req.query);
     const filter = parseFilterParams(req.query);
@@ -97,7 +99,7 @@ export const upsertContactController = async (req, res, next) => {
     res.status(status).json({
       status,
       message: `Successfully upserted a contact!`,
-      data: result,  
+      data: result,
     });
   } catch (error) {
     next(error);

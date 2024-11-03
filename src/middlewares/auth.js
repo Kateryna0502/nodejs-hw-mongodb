@@ -3,36 +3,37 @@ import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 
-export async function auth(req, res, next) {
-  const { authorization } = req.headers;
 
-  if (typeof authorization !== 'string') {
-    return next(createHttpError(401, 'Please provide access token'));
+  export const auth = async (req, res, next) => {
+  const authHeader = req.get('Authorization');
+
+  if (!authHeader) {
+    next(createHttpError(401, 'Please provide Authorization header'));
+    return;
   }
-
-  const [bearer, accessToken] = authorization.split(' ', 2);
-
-  if (bearer !== 'Bearer' || typeof accessToken !== 'string') {
-    return next(createHttpError(401, 'Please provide access token'));
+  const bearer = authHeader.split(' ')[0];
+  const token = authHeader.split(' ')[1];
+  if (bearer !== 'Bearer' || !token) {
+    next(createHttpError(401, 'Auth header should be of type Bearer'));
+    return;
   }
-
-  const session = await Session.findOne({ accessToken });
-
-  if (session === null) {
-    return next(createHttpError(401, 'Session not found successfully'));
+  const session = await Session.findOne({ accessToken: token });
+  if (!session) {
+    next(createHttpError(401, 'Session not found'));
+    return;
   }
-
-  if (new Date() > session.accessTokenValidUntil) {
-    return next(createHttpError(401, 'Access token is expired'));
+  const isAccessTokenExpired =
+    new Date() > new Date(session.accessTokenValidUntil);
+  if (isAccessTokenExpired) {
+    next(createHttpError(401, 'Access token expired'));
+    return;
   }
-
   const user = await User.findById(session.userId);
-
-  if (user === null) {
-    return next(createHttpError(401, 'Session not found'));
+  if (!user) {
+    next(createHttpError(401, 'User not found'));
+    return;
   }
-
-  req.user = { id: user._id, name: user.name };
+  req.user = user;
 
   next();
-}
+};

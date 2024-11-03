@@ -17,11 +17,13 @@ import {
   createContactSchema,
   updateContactSchema,
 } from "../validation/contacts.js";
+
 import { auth } from '../middlewares/auth.js';
 
 
 const router = Router();
 router.use(auth);
+
 router.get("/", ctrlWrapper(getContactsController));
 router.get("/:contactId", isValidId, ctrlWrapper(getContactController));
 router.post(
