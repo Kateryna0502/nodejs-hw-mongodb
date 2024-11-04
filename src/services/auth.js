@@ -17,20 +17,6 @@ export async function registerUser(payload) {
   return User.create(payload);
 }
 
-// export async function loginUser(email, password) {
-//   const user = await User.findOne({ email });
-
-//   if (user === null) {
-//     throw createHttpError(404, "User not found");
-
-//   }
-
-//   const isMatch = await bcrypt.compare(password, user.password);
-
-//   if (isMatch !== true) {
-//     throw createHttpError(401, 'Unauthorized! Incorrect password');
-
-//   }
 export const loginUser = async (payload) => {
   const user = await User.findOne({ email: payload.email });
   if (!user) throw createHttpError(404, 'User not found');
