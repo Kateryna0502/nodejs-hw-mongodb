@@ -47,23 +47,26 @@ export const getAllContacts = async ({
   return { data: contacts, ...paginationData };
 };
 
-export const getContactById = async (userId, id) => {
-  return await Contact.findById(id, userId);
+export const getContactById = async (contactId, userId ) => {
+  return await Contact.findOne({ _id: contactId, userId,  });
 };
 export const createContact = async (payload) => {
   const contact = await Contact.create(payload);
   return contact;
 };
 export const deleteContact = async (userId, contactId) => {
-  const contact = await Contact.findOneAndDelete({ _id: contactId });
+  const contact = await Contact.findOneAndDelete( {
+    _id: contactId,
+    userId,
+  });
   return contact;
 };
 
 export const updateContact = async (contactId, payload, userId, options = {}) => {
   const rawResult = await Contact.findOneAndUpdate(
     {
-      _id: contactId, userId,
-    },
+      _id: contactId, userId },
+
     payload,
     { new: true, includeResultMetadata: true, ...options }
   );
