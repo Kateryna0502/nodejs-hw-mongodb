@@ -1,9 +1,20 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
+import jwt from "jsonwebtoken";
+import Handlebars from "handlebars";
 import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
+import { sendEmail } from '../utils/sendMail.js';
 
+
+const RESET_PASSWORD_TEMPLATE = fs.readFileSync(
+  path.resolve('src/templates/reset-password.hbs'),
+  { encoding: 'utf-8' },
+);
 
 export async function registerUser(payload) {
   const user = await User.findOne({ email: payload.email });
@@ -70,3 +81,59 @@ export async function refreshSession(sessionId, refreshToken) {
     refreshTokenValidUntil: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
 }
+
+export const requestResetEmail = async (email) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found!');
+  }
+
+  const resetToken = jwt.sign(
+    { sub: user._id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' },
+  );
+  const html = handlebars.compile(RESET_PASSWORD_TEMPLATE);
+  try {
+    await sendEmail({
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: 'Password Reset',
+      html: html({ resetToken }),
+    });
+  } catch (error) {
+    console.error(error);
+
+    throw createHttpError(
+      500,
+      'Failed to send the email, please try again later.',
+    );
+  }
+};
+
+export const resetPassword = async (password, token) => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ _id: decoded.sub, email: decoded.email });
+
+    if (!user) {
+      throw createHttpError(404, 'User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.findByIdAndUpdate(user._id, { password: hashedPassword });
+
+    await Session.deleteOne({ userId: user._id });
+  } catch (error) {
+    if (
+      error.name === 'JsonWebTokenError' ||
+      error.name === 'TokenExpiredError'
+    ) {
+      throw createHttpError(401, 'Token is expired or invalid.');
+    }
+
+    throw error;
+  }
+};
