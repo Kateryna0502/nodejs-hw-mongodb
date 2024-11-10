@@ -4,7 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
-import Handlebars from "handlebars";
+import handlebars from "handlebars";
 import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
@@ -82,7 +82,7 @@ export async function refreshSession(sessionId, refreshToken) {
   });
 }
 
-export const requestResetEmail = async (email) => {
+export const requestResetToken = async (email) => {
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -97,7 +97,8 @@ export const requestResetEmail = async (email) => {
   const html = handlebars.compile(RESET_PASSWORD_TEMPLATE);
   try {
     await sendEmail({
-      from: process.env.SMTP_FROM,
+      // from: process.env.SMTP_FROM,
+      from: 'mweoliss74@gmail.com',
       to: email,
       subject: 'Password Reset',
       html: html({ resetToken }),
@@ -117,23 +118,21 @@ export const resetPassword = async (password, token) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ _id: decoded.sub, email: decoded.email });
 
-    if (!user) {
+    if (user === null) {
       throw createHttpError(404, 'User not found');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-
-    await Session.deleteOne({ userId: user._id });
   } catch (error) {
     if (
       error.name === 'JsonWebTokenError' ||
       error.name === 'TokenExpiredError'
     ) {
-      throw createHttpError(401, 'Token is expired or invalid.');
+      throw createHttpError(401, 'Token error');
     }
 
     throw error;
   }
-};
+}
