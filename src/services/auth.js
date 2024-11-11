@@ -14,12 +14,7 @@ import { Session } from '../models/session.js';
 import { env } from '../utils/env.js';
 import { sendEmail } from '../utils/sendMail.js';
 
-// import { SMTP, TEMPLATES_DIR } from '../constants/index.js';
 
-// const RESET_PASSWORD_TEMPLATE = fs.readFileSync(
-//   path.resolve('src/templates/reset-password.hbs'),
-//   { encoding: 'utf-8' },
-// );
 
 export async function registerUser(payload) {
   const user = await User.findOne({ email: payload.email });
@@ -161,49 +156,3 @@ export const resetPassword = async (token, password) => {
     }
 };
 
-// export const requestResetToken = async (email) => {
-//   const user = await User.findOne({ email });
-//   if (!user) {
-//     throw createHttpError (404, 'User not found');
-//   }
-//   const resetToken = jwt.sign(
-//     { sub: user._id, email: user.email },
-//     process.env.JWT_SECRET,
-//     { expiresIn: '15m' },
-//   );
-//   try {
-//     sendEmail({
-//       from: process.env.SMTP_FROM,
-//       to: email,
-//       subject: 'Reset your password',
-//       html: ` To reset your password please visit to <a href="${process.env.APP_DOMAIN}/password-reset?token=${resetToken}">link</a>`,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     throw createHttpError(
-//       500,
-//       'Failed to send the email, please try again later.',
-//     );
-//   }
-// };
-
-// export const resetPassword = async (password, token) => {
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     const user = User.findOne({ _id: decoded.sub, email: decoded.email });
-//     if (!user) {
-//       throw createHttpError(404, 'User not found');
-//     }
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     User.findByIdAndUpdate(user._id, { password: hashedPassword });
-//     await Session.deleteOne({ _id: decoded.sub });
-//   } catch (error) {
-//     if (
-//       error.name === 'JsonWebTokenError' ||
-//       error.name === 'TokenExpiredEror'
-//     ) {
-//       throw createHttpError(401, 'Token is expired or invalid.');
-//     }
-//     throw error;
-//   }
-// };
