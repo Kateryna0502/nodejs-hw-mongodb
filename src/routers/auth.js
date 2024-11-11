@@ -1,5 +1,5 @@
-import express from 'express';
-import { ctrlWrapper } from '../utils/ctrlWrapper.js';
+import express from "express";
+import { ctrlWrapper } from "../utils/ctrlWrapper.js";
 import {
   registerController,
   loginController,
@@ -7,46 +7,50 @@ import {
   refreshController,
   requestResetEmailController,
   resetPasswordController,
-} from '../controllers/auth.js';
-import { validateBody } from '../middlewares/validateBody.js';
-import { registerSchema, loginSchema, requestResetEmailSchema,
-  resetPasswordSchema } from '../validation/auth.js';
-import { auth } from '../middlewares/auth.js';
+} from "../controllers/auth.js";
+import { validateBody } from "../middlewares/validateBody.js";
+import {
+  registerSchema,
+  loginSchema,
+  requestResetEmailSchema,
+  resetPasswordSchema,
+} from "../validation/auth.js";
+import { auth } from "../middlewares/auth.js";
 
 const authRoutes = express.Router();
 const jsonParser = express.json({
-  type: 'application/json',
+  type: "application/json",
 });
 
 authRoutes.use(express.json());
 
 authRoutes.post(
-  '/register',
+  "/register",
   validateBody(registerSchema),
-  ctrlWrapper(registerController),
+  ctrlWrapper(registerController)
 );
 
 authRoutes.post(
-  '/login',
+  "/login",
   validateBody(loginSchema),
-  ctrlWrapper(loginController),
+  ctrlWrapper(loginController)
 );
 
-authRoutes.post('/logout', ctrlWrapper(logoutController));
-authRoutes.post('/refresh', ctrlWrapper(refreshController));
+authRoutes.post("/logout", ctrlWrapper(logoutController));
+authRoutes.post("/refresh", ctrlWrapper(refreshController));
 
 authRoutes.post(
-  '/send-reset-email',
+  "/send-reset-email",
   jsonParser,
   validateBody(requestResetEmailSchema),
-  ctrlWrapper(requestResetEmailController),
+  ctrlWrapper(requestResetEmailController)
 );
 
 authRoutes.post(
-  '/reset-pwd',
+  "/reset-pwd",
   jsonParser,
   validateBody(resetPasswordSchema),
-  ctrlWrapper(resetPasswordController),
+  ctrlWrapper(resetPasswordController)
 );
 
 export default authRoutes;

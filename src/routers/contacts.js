@@ -33,7 +33,7 @@ router.get("/", ctrlWrapper(getContactsController));
 router.get("/:contactId", isValidId, ctrlWrapper(getContactController));
 router.post(
   "/",
-  upload.single("avatar"),
+  upload.single("photo"),
   jsonParser,
   validateBody(createContactSchema),
   ctrlWrapper(createContactController)

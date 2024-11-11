@@ -12,7 +12,9 @@ import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
 import { parseFilterParams } from "../utils/parseFilterParams.js";
 
-import { uploadToCloudinary } from '../utils/uploadToCloudinary.js';
+import { savePhotoToUploadDir } from '../utils/savePhotoToUploadDir.js';
+import { savePhotoToCloudinary } from '../utils/savePhotoToCloudinary.js';
+import { env } from '../utils/env.js';
 
 export async function getContactsController(req, res, next) {
   const userId = req.user._id;
@@ -58,27 +60,19 @@ export const getContactController = async (req, res, next) => {
 };
 
 
-export const createContactController = async (req, res, next) => {
-  let avatar = null;
+export const createContactController = async (req, res) => {
+    // const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+    const photo = req.file;
 
-  if (typeof req.file !== 'undefined') {
-    if (process.env.ENABLE_CLOUDINARY === 'true') {
-      const result = await uploadToCloudinary(req.file.path);
-     
-      await fs.unlink(req.file.path);
+    let photoUrl = null;
 
-
-
-      avatar = result.secure_url;
-    } else {
-      await fs.rename(
-        req.file.path,
-        path.resolve('src', 'public/avatars', req.file.filename),
-      );
-
-      avatar = `http://localhost:3000/avatars/${req.file.filename}`;
+    if (typeof photo !== 'undefined') {
+        if (env('ENABLE_CLOUDINARY') === 'true') {
+            photoUrl = await savePhotoToCloudinary(photo);
+        } else {
+            photoUrl = await savePhotoToUploadDir(photo);
+        }
     }
-  }
 
   try {
     const userId = req.user._id;
