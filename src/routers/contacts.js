@@ -1,3 +1,4 @@
+import express from 'express';
 import { Router } from "express";
 
 import {
@@ -9,6 +10,7 @@ import {
   updateContactController,
 } from "../controllers/contacts.js";
 
+import { upload } from "../middlewares/upload.js";
 import { ctrlWrapper } from "../utils/ctrlWrapper.js";
 import { validateBody } from "../middlewares/validateBody.js";
 import { isValidId } from "../middlewares/isValidId.js";
@@ -22,12 +24,17 @@ import { auth } from '../middlewares/auth.js';
 
 
 const router = Router();
+const jsonParser = express.json({
+  type: 'application/json',
+});
 router.use(auth);
 
 router.get("/", ctrlWrapper(getContactsController));
 router.get("/:contactId", isValidId, ctrlWrapper(getContactController));
 router.post(
   "/",
+  upload.single("avatar"),
+  jsonParser,
   validateBody(createContactSchema),
   ctrlWrapper(createContactController)
 );

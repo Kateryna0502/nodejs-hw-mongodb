@@ -1,3 +1,4 @@
+import path from 'node:path';
 import express from "express";
 import cookieParser from 'cookie-parser';
 import { env } from "./utils/env.js";
@@ -15,6 +16,8 @@ const PORT = process.env.PORT || 3000;
 
 export const setupServer = () => {
   const app = express();
+
+  app.use('/avatars', express.static(path.resolve('src', 'public/avatars')));
 
   app.use(cors());
   app.use(
