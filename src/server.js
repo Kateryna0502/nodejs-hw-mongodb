@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 export const setupServer = () => {
   const app = express();
 
-  app.use('/avatars', express.static(path.resolve('src', 'public/avatars')));
+  app.use('/photo', express.static(path.resolve('src', 'public/photo')));
 
   app.use(cors());
   app.use(

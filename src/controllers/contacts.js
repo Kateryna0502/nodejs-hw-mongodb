@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+
+import path from 'node:path';
 import httpError from "http-errors";
 
 import {
@@ -12,9 +15,10 @@ import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
 import { parseFilterParams } from "../utils/parseFilterParams.js";
 
-import { savePhotoToUploadDir } from '../utils/savePhotoToUploadDir.js';
-import { savePhotoToCloudinary } from '../utils/savePhotoToCloudinary.js';
+// import { savePhotoToUploadDir } from '../utils/savePhotoToUploadDir.js';
+// import { savePhotoToCloudinary } from '../utils/savePhotoToCloudinary.js';
 import { env } from '../utils/env.js';
+import { uploadToCloudinary } from '../utils/uploadToCloudinary.js';
 
 export async function getContactsController(req, res, next) {
   const userId = req.user._id;
@@ -60,33 +64,41 @@ export const getContactController = async (req, res, next) => {
 };
 
 
+
 export const createContactController = async (req, res) => {
-    // const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-    const photo = req.file;
+  const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+  let photo = null;
 
-    let photoUrl = null;
+  if (typeof req.file !== 'undefined') {
+    if (process.env.ENABLE_CLOUDINARY === 'true') {
+      const result = await uploadToCloudinary(req.file.path);
+      await fs.unlink(req.file.path);
 
-    if (typeof photo !== 'undefined') {
-        if (env('ENABLE_CLOUDINARY') === 'true') {
-            photoUrl = await savePhotoToCloudinary(photo);
-        } else {
-            photoUrl = await savePhotoToUploadDir(photo);
-        }
+      photo = result.secure_url;
     }
+  } else {
+    await fs.rename(
+      req.file.path,
+      path.resolve('src', 'public/photo', req.file.filename),
+    );
 
-  try {
-    const userId = req.user._id;
-    const contact = await createContact({ userId, ...req.body });
-
-    res.status(201).json({
-      status: 201,
-      message: "Successfully created a contact!",
-      data: contact,
-    });
-  } catch (error) {
-    next(error);
+    photo = `http://localhost:3000/photo/${req.file.filename}`;
   }
+
+  const newContact = await createContact({
+    ...req.body,
+    userId: req.user._id,
+    photo,
+  });
+
+
+  res.status(201).json({
+    status: 201,
+    message: `Successfully created a contact!`,
+    data: newContact,
+  });
 };
+
 
 export const deleteContactController = async (req, res, next) => {
   try {

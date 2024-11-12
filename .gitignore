@@ -8,5 +8,7 @@
 
 src/tmp/*
 !src/tmp/.gitkeep
-src/public/avatars/*
-!src/public/avatars/.gitkeep
+src/public/photo/*
+!src/public/photo/.gitkeep
+
+
