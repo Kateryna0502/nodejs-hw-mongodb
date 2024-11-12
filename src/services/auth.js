@@ -14,7 +14,7 @@ import { Session } from '../models/session.js';
 import { env } from '../utils/env.js';
 import { sendEmail } from '../utils/sendMail.js';
 
-
+import { SMTP, TEMPLATES_DIR } from '../constants/index.js';
 
 export async function registerUser(payload) {
   const user = await User.findOne({ email: payload.email });
