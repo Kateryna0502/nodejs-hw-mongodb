@@ -129,30 +129,56 @@ export const requestResetToken = async (email) => {
 };
 
 
-export const resetPassword = async (token, password) => {
-    try {
-        const entries = jwt.verify(token, process.env.JWT_SECRET);
+// export const resetPassword = async (token, password) => {
+//     try {
+//         const entries = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findOne({ _id: entries.sub, email: entries.email });
+//         const user = await User.findOne({ _id: entries.sub, email: entries.email });
 
-        if (user === null) {
-            throw createHttpError(404, 'User not found');
-        }
+//         if (user === null) {
+//             throw createHttpError(404, 'User not found');
+//         }
 
-        await Session.deleteOne({ userId: user._id });
+//         await Session.deleteOne({ userId: user._id });
 
-        const encryptedPassword = await bcrypt.hash(password, 10);
+//         const encryptedPassword = await bcrypt.hash(password, 10);
 
-        await User.findByIdAndUpdate(user._id, { password: encryptedPassword });
-    } catch (error) {
-        if (
-            error.name === 'JsonWebTokenError' ||
-            error.name === 'TokenExpiredError'
-        ) {
-            throw createHttpError(401, 'Token error');
-        }
+//         await User.findByIdAndUpdate(user._id, { password: encryptedPassword });
+//     } catch (error) {
+//         if (
+//             error.name === 'JsonWebTokenError' ||
+//             error.name === 'TokenExpiredError'
+//         ) {
+//             throw createHttpError(401, 'Token error');
+//         }
 
-        throw error;
-    }
+//         throw error;
+//     }
+// };
+
+export const resetPassword = async (payload) => {
+  let entries;
+
+  try {
+    entries = jwt.verify(payload.token, env('JWT_SECRET'));
+  } catch (err) {
+    if (err instanceof Error) throw createHttpError(401, err.message);
+    throw err;
+  }
+
+  const user = await User.findOne({
+    email: entries.email,
+    _id: entries.sub,
+  });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const encryptedPassword = await bcrypt.hash(payload.password, 10);
+
+  await User.updateOne(
+    { _id: user._id },
+    { password: encryptedPassword },
+  );
 };
-
