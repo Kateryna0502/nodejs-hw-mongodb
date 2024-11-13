@@ -141,9 +141,9 @@ export const updateContactController = async (req, res) => {
     } else {
       await fs.rename(
         req.file.path,
-        path.resolve("src", "public/photos", req.file.filename)
+        path.resolve("src", "public/photo", req.file.filename)
       );
-      photo = `http://localhost:3000/photos/${req.file.filename}`;
+      photo = `http://localhost:3000/photo/${req.file.filename}`;
     }
   }
 
