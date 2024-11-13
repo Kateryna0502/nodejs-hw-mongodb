@@ -7,7 +7,7 @@ import pino from "pino-http";
 import cors from "cors";
 // import contactsRouter from "./routers/contacts.js";
 import router from './routers/index.js';
-
+import { UPLOAD_DIR } from './constants/index.js';
 
 import { notFoundHandler } from "./middlewares/notFoundHandler.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -17,7 +17,9 @@ const PORT = process.env.PORT || 3000;
 export const setupServer = () => {
   const app = express();
 
-  app.use('/photo', express.static(path.resolve('src', 'public/photo')));
+  // app.use('/photo', express.static(path.resolve('src', 'public/photo')));
+  
+  app.use('/photo', express.static(UPLOAD_DIR));
 
   app.use(cors());
   app.use(
