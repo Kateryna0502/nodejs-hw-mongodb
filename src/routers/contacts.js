@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import { Router } from "express";
 
 import {
@@ -20,12 +20,11 @@ import {
   updateContactSchema,
 } from "../validation/contacts.js";
 
-import { auth } from '../middlewares/auth.js';
-
+import { auth } from "../middlewares/auth.js";
 
 const router = Router();
 const jsonParser = express.json({
-  type: 'application/json',
+  type: "application/json",
 });
 router.use(auth);
 
