@@ -5,8 +5,10 @@ import {
   logoutUser,
   refreshSession,
   requestResetToken,
-  resetPassword,
+  resetPassword
 } from "../services/auth.js";
+
+
 
 export async function registerController(req, res) {
   const payload = {
