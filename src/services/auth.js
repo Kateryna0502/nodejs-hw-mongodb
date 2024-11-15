@@ -28,24 +28,28 @@ export async function registerUser(payload) {
 
 export const loginUser = async (payload) => {
   const user = await User.findOne({ email: payload.email });
-  if (!user) throw createHttpError(404, "User not found");
-
-  const isEqual = bcrypt.compare(payload.password, user.password);
-
-  if (!isEqual) throw createHttpError(401, "Unauthorized");
+  if (!user || !(await bcrypt.compare(payload.password, user.password))) {
+    throw createHttpError(404, "User not found");
+  }
 
   await Session.deleteOne({ userId: user._id });
 
   const accessToken = crypto.randomBytes(30).toString("base64");
   const refreshToken = crypto.randomBytes(30).toString("base64");
 
-  return Session.create({
-    userId: user._id,
-    accessToken,
-    refreshToken,
-    accessTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    refreshTokenValidUntil: new Date(Date.now() + 24 * 60 * 60 * 1000),
-  });
+  try {
+    await Session.create({
+      userId: user._id,
+      accessToken,
+      refreshToken,
+      accessTokenValidUntil: new Date(Date.now() + 60 * 60 * 1000),
+      refreshTokenValidUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+  } catch (err) {
+    throw createHttpError(500, "Failed to create session");
+  }
+
+  return { accessToken, refreshToken };
 };
 
 export function logoutUser(sessionId) {
@@ -134,7 +138,7 @@ export async function resetPassword(password, token) {
     const user = await User.findOne({ _id: decoded.sub, email: decoded.email });
 
     if (user === null) {
-      throw createHttpError(404, 'User not found');
+      throw createHttpError(404, "User not found");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -142,13 +146,12 @@ export async function resetPassword(password, token) {
     await User.findByIdAndUpdate(user._id, { password: hashedPassword });
   } catch (error) {
     if (
-      error.name === 'JsonWebTokenError' ||
-      error.name === 'TokenExpiredError'
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
     ) {
-      throw createHttpError(401, 'Token error');
+      throw createHttpError(401, "Token error");
     }
 
     throw error;
   }
 }
-
