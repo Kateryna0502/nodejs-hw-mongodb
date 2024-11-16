@@ -5,7 +5,7 @@ import { env } from "./utils/env.js";
 import "dotenv/config";
 import pino from "pino-http";
 import cors from "cors";
-// import contactsRouter from "./routers/contacts.js";
+
 import router from './routers/index.js';
 import { UPLOAD_DIR } from './constants/index.js';
 
@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 export const setupServer = () => {
   const app = express();
 
-  // app.use('/photo', express.static(path.resolve('src', 'public/photo')));
+
 
   app.use('/photo', express.static(UPLOAD_DIR));
   app.use('/api-docs', swaggerDocs());
