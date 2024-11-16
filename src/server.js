@@ -11,6 +11,7 @@ import { UPLOAD_DIR } from './constants/index.js';
 
 import { notFoundHandler } from "./middlewares/notFoundHandler.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,8 +19,9 @@ export const setupServer = () => {
   const app = express();
 
   // app.use('/photo', express.static(path.resolve('src', 'public/photo')));
-  
+
   app.use('/photo', express.static(UPLOAD_DIR));
+  app.use('/api-docs', swaggerDocs());
 
   app.use(cors());
   app.use(

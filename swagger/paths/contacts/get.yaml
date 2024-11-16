@@ -2,7 +2,7 @@ tags:
   - Contacts
 summary: Get list of contacts
 operationId: getContacts
-description: "Get list of contacts with this endpoint"
+description: "Get list of contacts"
 security:
   - bearerAuth: []
 parameters:
@@ -21,7 +21,7 @@ parameters:
     schema:
       type: string
       example: "name"
-    description: "All contact's fields can be mentioned. Default value - _id"
+    description: "Field by which to sort the contacts. Default value - _id"
   - in: query
     name: sortOrder
     schema:
