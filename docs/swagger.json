@@ -12,6 +12,9 @@
   "servers": [
     {
       "url": "http://localhost:3000"
+    },
+    {
+      "url": "https://nodejs-hw-mongodb-15-ibn9.onrender.com"
     }
   ],
   "tags": [
@@ -511,11 +514,8 @@
           "_id",
           "name",
           "phoneNumber",
-          "email",
-          "isFavourite",
           "contactType",
           "userId",
-          "photo",
           "createdAt",
           "updatedAt"
         ],
