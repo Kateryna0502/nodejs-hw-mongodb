@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
+import createHttpError from "http-errors";
 import fs from "node:fs/promises";
 
 import path from "node:path";
-import httpError from "http-errors";
+// import httpError from "http-errors";
 
 import {
   createContact,
@@ -62,30 +64,70 @@ export const getContactController = async (req, res, next) => {
   });
 };
 
+// export const createContactController = async (req, res) => {
+//   const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+//   let photo = null;
+
+//   if (typeof req.file !== "undefined") {
+//     if (process.env.ENABLE_CLOUDINARY === "true") {
+//       const result = await uploadToCloudinary(req.file.path);
+//       await fs.unlink(req.file.path);
+
+//       photo = result.secure_url;
+//     }
+//   } else {
+//     await fs.rename(
+//       req.file.path,
+//       path.resolve("src", "public/photo", req.file.filename)
+//     );
+
+//     photo = `http://localhost:3000/photo/${req.file.filename}`;
+//   }
+
+//   const newContact = await createContact({
+//     ...req.body,
+//     userId: req.user._id,
+//     photo,
+//   });
+
+//   res.status(201).json({
+//     status: 201,
+//     message: `Successfully created a contact!`,
+//     data: newContact,
+//   });
+// };
+
+
+
+
+
 export const createContactController = async (req, res) => {
   const { name, phoneNumber, email, isFavourite, contactType } = req.body;
   let photo = null;
 
-  if (typeof req.file !== "undefined") {
+  // Перевірка, чи переданий файл
+  if (req.file) {
     if (process.env.ENABLE_CLOUDINARY === "true") {
       const result = await uploadToCloudinary(req.file.path);
-      await fs.unlink(req.file.path);
+      await fs.unlink(req.file.path); // Видалення локального файлу після завантаження
 
       photo = result.secure_url;
-    }
-  } else {
-    await fs.rename(
-      req.file.path,
-      path.resolve("src", "public/photo", req.file.filename)
-    );
+    } else {
+      // Якщо Cloudinary не використовується, перемістити файл у локальну папку
+      await fs.rename(
+        req.file.path,
+        path.resolve("src", "public/photo", req.file.filename)
+      );
 
-    photo = `http://localhost:3000/photo/${req.file.filename}`;
+      photo = `http://localhost:3000/photo/${req.file.filename}`;
+    }
   }
 
+  // Створення контакту
   const newContact = await createContact({
     ...req.body,
     userId: req.user._id,
-    photo,
+    photo, // Якщо фото не передано, залишиться `null`
   });
 
   res.status(201).json({
@@ -127,19 +169,20 @@ export const upsertContactController = async (req, res, next) => {
   });
 };
 
+
 export const updateContactController = async (req, res) => {
   const { contactId } = req.params;
   let photo = null;
 
   if (req.file) {
-    if (process.env.ENABLE_CLOUDINARY === "true") {
+    if (process.env.ENABLE_CLOUDINARY === 'true') {
       const result = await uploadToCloudinary(req.file.path);
       await fs.unlink(req.file.path);
       photo = result.secure_url;
     } else {
       await fs.rename(
         req.file.path,
-        path.resolve("src", "public/photo", req.file.filename)
+        path.resolve('src', 'public/photo', req.file.filename),
       );
       photo = `http://localhost:3000/photo/${req.file.filename}`;
     }
@@ -153,7 +196,7 @@ export const updateContactController = async (req, res) => {
   const result = await updateContact(contactId, updatedData, req.user._id);
 
   if (!result) {
-    throw createHttpError(404, "Contact not found");
+    throw createHttpError(404, 'Contact not found');
   }
 
   res.status(200).json({
@@ -162,3 +205,4 @@ export const updateContactController = async (req, res) => {
     data: result,
   });
 };
+
