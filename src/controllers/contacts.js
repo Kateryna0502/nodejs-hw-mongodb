@@ -17,7 +17,6 @@ import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
 import { parseFilterParams } from "../utils/parseFilterParams.js";
 
-
 import { env } from "../utils/env.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 
@@ -59,46 +58,10 @@ export const getContactController = async (req, res, next) => {
 
   res.status(200).json({
     status: 200,
-    message: "Successfully found contact with id {contactId}!",
+    message: `Successfully found contact with id ${contactId}!`,
     data: contact,
   });
 };
-
-// export const createContactController = async (req, res) => {
-//   const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-//   let photo = null;
-
-//   if (typeof req.file !== "undefined") {
-//     if (process.env.ENABLE_CLOUDINARY === "true") {
-//       const result = await uploadToCloudinary(req.file.path);
-//       await fs.unlink(req.file.path);
-
-//       photo = result.secure_url;
-//     }
-//   } else {
-//     await fs.rename(
-//       req.file.path,
-//       path.resolve("src", "public/photo", req.file.filename)
-//     );
-
-//     photo = `http://localhost:3000/photo/${req.file.filename}`;
-//   }
-
-//   const newContact = await createContact({
-//     ...req.body,
-//     userId: req.user._id,
-//     photo,
-//   });
-
-//   res.status(201).json({
-//     status: 201,
-//     message: `Successfully created a contact!`,
-//     data: newContact,
-//   });
-// };
-
-
-
 
 
 export const createContactController = async (req, res) => {
@@ -169,20 +132,19 @@ export const upsertContactController = async (req, res, next) => {
   });
 };
 
-
 export const updateContactController = async (req, res) => {
   const { contactId } = req.params;
   let photo = null;
 
   if (req.file) {
-    if (process.env.ENABLE_CLOUDINARY === 'true') {
+    if (process.env.ENABLE_CLOUDINARY === "true") {
       const result = await uploadToCloudinary(req.file.path);
       await fs.unlink(req.file.path);
       photo = result.secure_url;
     } else {
       await fs.rename(
         req.file.path,
-        path.resolve('src', 'public/photo', req.file.filename),
+        path.resolve("src", "public/photo", req.file.filename)
       );
       photo = `http://localhost:3000/photo/${req.file.filename}`;
     }
@@ -196,7 +158,7 @@ export const updateContactController = async (req, res) => {
   const result = await updateContact(contactId, updatedData, req.user._id);
 
   if (!result) {
-    throw createHttpError(404, 'Contact not found');
+    throw createHttpError(404, "Contact not found");
   }
 
   res.status(200).json({
@@ -205,4 +167,3 @@ export const updateContactController = async (req, res) => {
     data: result,
   });
 };
-
